@@ -18,6 +18,7 @@ function point({x, y}) {
 }
 
 function line(p1, p2) {
+    ctx.lineWidth = 3;
     ctx.strokeStyle = FOREGROUND;
 
     ctx.beginPath();
@@ -45,12 +46,12 @@ let dz = 1;
 let angle = 0;
 
 const vs = [
-    { x: -0.25, y:  0.25, z: 0.25},
     { x:  0.25, y:  0.25, z: 0.25},
+    { x: -0.25, y:  0.25, z: 0.25},
     { x: -0.25, y: -0.25, z: 0.25},
     { x:  0.25, y: -0.25, z: 0.25},
-    { x: -0.25, y:  0.25, z: -0.25 },
     { x:  0.25, y:  0.25, z: -0.25 },
+    { x: -0.25, y:  0.25, z: -0.25 },
     { x: -0.25, y: -0.25, z: -0.25 },
     { x:  0.25, y: -0.25, z: -0.25 }
 ]
@@ -58,6 +59,10 @@ const vs = [
 const fs = [
     [0, 1, 2, 3],
     [4, 5, 6, 7],
+    [0, 4],
+    [1, 5],
+    [2, 6],
+    [3, 7]
 ]
 function translate_z({x, y, z}, dz) {
     return {x, y, z: z + dz}
@@ -78,9 +83,9 @@ function frame() {
     angle += Math.PI*dt;
     clear()
     
-    for (const v of vs) {
-        point(screen(project(translate_z(rotate_xz(v, angle), dz))))
-    }
+    // for (const v of vs) {
+    //     point(screen(project(translate_z(rotate_xz(v, angle), dz))))
+    // }
 
     for (const f of fs) {
         for (let i = 0; i < f.length; ++i) {
