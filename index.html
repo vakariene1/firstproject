@@ -1,5 +1,31 @@
-<canvas id="game"></canvas>
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<title>3D objektas – sukimas su pele</title>
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    canvas {
+        border: 1px solid #333;
+        cursor: grab;
+    }
+    canvas:active {
+        cursor: grabbing;
+    }
+</style>
+</head>
+<body>
 
+<canvas id="game" width="900" height="900"></canvas>
+</body>
+</html>
 <script src="index.js"></script>
 
 

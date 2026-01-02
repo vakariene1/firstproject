@@ -1,97 +1,126 @@
-const BACKGROUND =  "#101010"
-const FOREGROUND =  "#50FF50"
+const game = document.getElementById("game");
+const ctx = game.getContext("2d");
 
-game.width = 900
-game.height = 900
-
-const ctx = game.getContext("2d")
-
-
-function clear () {
-    ctx.fillStyle = BACKGROUND
-    ctx.fillRect(0, 0, game.width, game.height)
-}
-
-function point({x, y}) {
-    const s = 20;
-    ctx.fillStyle = FOREGROUND  
-    ctx.fillRect(x - s/2, y - s/2, s, s)
-}
-
-function line(p1, p2) {
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = FOREGROUND;
-
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.stroke();
-}
-function screen(p) {
-    //-1..1 => 0..2 => 0...1 => 0..w
-    return {
-        x: (p.x + 1)/2*game.width,
-        y: (1 - (p.y + 1)/2)*game.height,
-    }
-}
-
-function project({x, y, z}) {  
-    return {
-        x: x/z,
-        y: y/z,
-    }
-}
+const BACKGROUND = "#101010";
+const FOREGROUND = "#50FF50";
 
 const FPS = 60;
 let dz = 3;
-let angle = 0;
 
+// ===== PELE =====
+let dragging = false;
+let lastX = 0;
+let lastY = 0;
+let rotY = 0;
+let rotX = 0;
+
+// ===== EVENTAI =====
+game.addEventListener("mousedown", e => {
+    dragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+});
+
+window.addEventListener("mouseup", () => dragging = false);
+
+window.addEventListener("mousemove", e => {
+    if (!dragging) return;
+
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    rotY += dx * 0.01;
+    rotX += dy * 0.01;
+
+    rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+});
+
+// ===== GRAFIKA =====
+function clear() {
+    ctx.fillStyle = BACKGROUND;
+    ctx.fillRect(0, 0, game.width, game.height);
+}
+
+function line(a, b) {
+    ctx.strokeStyle = FOREGROUND;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+}
+
+function screen(p) {
+    return {
+        x: (p.x + 1) / 2 * game.width,
+        y: (1 - (p.y + 1) / 2) * game.height
+    };
+}
+
+function project({x, y, z}) {
+    return { x: x / z, y: y / z };
+}
+
+function translate_z(p, dz) {
+    return { x: p.x, y: p.y, z: p.z + dz };
+}
+
+// ===== ROTACIJOS =====
+function rotateY({x, y, z}, a) {
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+    return { x: x * c - z * s, y, z: x * s + z * c };
+}
+
+function rotateX({x, y, z}, a) {
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+    return { x, y: y * c - z * s, z: y * s + z * c };
+}
+
+function transform(v) {
+    return rotateX(rotateY(v, rotY), rotX);
+}
+
+// ===== VIRŠŪNĖS =====
 const vs = [
-    //virsutine
-    { x:  0 , y:  0.18, z: 0.25},
-    { x:  0 , y: -0.18, z: 0.25},
-    { x:  0 , y:  0.18, z: -0.25 },
-    { x:  0 , y: -0.18, z: -0.25 },
+    { x:  0 , y:  0.18, z:  0.25},
+    { x:  0 , y: -0.18, z:  0.25},
+    { x:  0 , y:  0.18, z: -0.25},
+    { x:  0 , y: -0.18, z: -0.25},
 
-    // apatine
-    { x: -1, y:  0.18, z: 0.25},
-    { x: -1, y: -0.18, z: 0.25},
-    { x: -1, y:  0.18, z: -0.25 },
-    { x: -1, y: -0.18, z: -0.25 },
+    { x: -1 , y:  0.18, z:  0.25},
+    { x: -1 , y: -0.18, z:  0.25},
+    { x: -1 , y:  0.18, z: -0.25},
+    { x: -1 , y: -0.18, z: -0.25},
 
- // bokstas virsus 
+    { x: -0.25, y: 0.4 , z:  0.12},
+    { x: -0.25, y: 0.4 , z: -0.12},
+    { x: -0.45, y: 0.4 , z:  0.12},
+    { x: -0.45, y: 0.4 , z: -0.12},
 
-    { x: -0.25, y:  0.4, z: 0.12},
-    { x: -0.25, y:  0.4, z:-0.12},
-    { x:-0.45, y:  0.4, z: 0.12},
-    { x:-0.45, y:  0.4, z:-0.12},
-     
-    // bokstas apacia 
+    { x: -0.25, y: 0.18, z:  0.12},
+    { x: -0.25, y: 0.18, z: -0.12},
+    { x: -0.45, y: 0.18, z:  0.12},
+    { x: -0.45, y: 0.18, z: -0.12},
 
-    { x: -0.25, y: 0.18, z: 0.12},
-    { x: -0.25, y: 0.18, z:-0.12},
-    { x:-0.45, y:  0.18, z: 0.12},
-    { x:-0.45, y:  0.18, z:-0.12},
+    { x: 1, y: 0.27, z:  0.05},
+    { x: 1, y: 0.33, z: -0.05},
+    { x: 1, y: 0.33, z:  0.05},
+    { x: 1, y: 0.27, z: -0.05},
 
-// pushka
+    { x: -0.25, y: 0.27, z:  0.05},
+    { x: -0.25, y: 0.33, z: -0.05},
+    { x: -0.25, y: 0.33, z:  0.05},
+    { x: -0.25, y: 0.27, z: -0.05},
+];
 
-    { x: 1, y:  0.27, z: 0.05},
-    { x: 1, y:  0.33, z:-0.05},
-    { x: 1, y:  0.33, z: 0.05},
-    { x: 1, y:  0.27, z:-0.05},
-
-
-    { x: -0.25, y:  0.27, z: 0.05},
-    { x: -0.25, y:  0.33, z:-0.05},
-    { x: -0.25, y:  0.33, z: 0.05},
-    { x: -0.25, y:  0.27, z:-0.05},
-
-]
-
-
+// ===== BRIAUNOS =====
 const fs = [
-
-    [0, 4],
+        [0, 4],
     [1, 5],
     [2, 6],
     [3, 7],
@@ -147,51 +176,19 @@ const fs = [
     [16, 19],
     [17, 18],
     [20, 23]
+];
 
-
-
-
-]
-function translate_z({x, y, z}, dz) {
-    return {x, y, z: z + dz}
-}
-
-function rotate_xz ({x, y, z}, angle) {
-     const c = Math.cos(angle);
-     const s = Math.sin(angle);
-     return {
-        x: x*c-z*s,
-        y,
-        z: x*s+z*c,
-     }
-}
+// ===== LOOP =====
 function frame() {
-    const dt = 1/FPS;
-   // dz += 1*dt
-    angle += Math.PI*dt;
-    clear()
-    
-    //  for (const v of vs) {
-    //      point(screen(project(translate_z(rotate_xz(v, angle), dz))))
-    //  }
+    clear();
 
     for (const f of fs) {
-        for (let i = 0; i < f.length; ++i) {
-
-            const a = vs[f[i]];
-            const b = vs[f[(i + 1)%f.length]];
-
-            const aStroke = screen(project(translate_z(rotate_xz(a, angle), dz)))
-            const bStroke = screen(project(translate_z(rotate_xz(b, angle), dz)))
-
-            line(
-                aStroke,
-                bStroke
-            )
-            
-        }       
+        const a = screen(project(translate_z(transform(vs[f[0]]), dz)));
+        const b = screen(project(translate_z(transform(vs[f[1]]), dz)));
+        line(a, b);
     }
 
-    setTimeout(frame, 1000/FPS); 
+    setTimeout(frame, 1000 / FPS);
 }
-setTimeout(frame, 1000/FPS); 
+
+frame();
