@@ -1,10 +1,11 @@
 const BACKGROUND =  "#101010"
 const FOREGROUND =  "#50FF50"
 
-game.width = 800
-game.height = 800
+game.width = 900
+game.height = 900
 
 const ctx = game.getContext("2d")
+
 
 function clear () {
     ctx.fillStyle = BACKGROUND
@@ -42,27 +43,114 @@ function project({x, y, z}) {
 }
 
 const FPS = 60;
-let dz = 1;
+let dz = 3;
 let angle = 0;
 
 const vs = [
-    { x:  0.25, y:  0.25, z: 0.25},
-    { x: -0.25, y:  0.25, z: 0.25},
-    { x: -0.25, y: -0.25, z: 0.25},
-    { x:  0.25, y: -0.25, z: 0.25},
-    { x:  0.25, y:  0.25, z: -0.25 },
-    { x: -0.25, y:  0.25, z: -0.25 },
-    { x: -0.25, y: -0.25, z: -0.25 },
-    { x:  0.25, y: -0.25, z: -0.25 }
+    //virsutine
+    { x:  0 , y:  0.18, z: 0.25},
+    { x:  0 , y: -0.18, z: 0.25},
+    { x:  0 , y:  0.18, z: -0.25 },
+    { x:  0 , y: -0.18, z: -0.25 },
+
+    // apatine
+    { x: -1, y:  0.18, z: 0.25},
+    { x: -1, y: -0.18, z: 0.25},
+    { x: -1, y:  0.18, z: -0.25 },
+    { x: -1, y: -0.18, z: -0.25 },
+
+ // bokstas virsus 
+
+    { x: -0.25, y:  0.4, z: 0.12},
+    { x: -0.25, y:  0.4, z:-0.12},
+    { x:-0.45, y:  0.4, z: 0.12},
+    { x:-0.45, y:  0.4, z:-0.12},
+     
+    // bokstas apacia 
+
+    { x: -0.25, y: 0.18, z: 0.12},
+    { x: -0.25, y: 0.18, z:-0.12},
+    { x:-0.45, y:  0.18, z: 0.12},
+    { x:-0.45, y:  0.18, z:-0.12},
+
+// pushka
+
+    { x: 1, y:  0.27, z: 0.05},
+    { x: 1, y:  0.33, z:-0.05},
+    { x: 1, y:  0.33, z: 0.05},
+    { x: 1, y:  0.27, z:-0.05},
+
+
+    { x: -0.25, y:  0.27, z: 0.05},
+    { x: -0.25, y:  0.33, z:-0.05},
+    { x: -0.25, y:  0.33, z: 0.05},
+    { x: -0.25, y:  0.27, z:-0.05},
+
 ]
 
+
 const fs = [
-    [0, 1, 2, 3],
-    [4, 5, 6, 7],
+
     [0, 4],
     [1, 5],
     [2, 6],
-    [3, 7]
+    [3, 7],
+    
+    // KVADRATAS 1
+    
+    [0, 2],
+    [1, 3],
+    [1, 0],
+    [3, 2],
+
+    //KVADRATAS 2
+    
+    [4, 5],
+    [6, 7],
+    [6, 4],
+    [7, 5],
+
+    //boksto virsus
+
+    [8, 9],
+    [10, 11],
+    [12, 13],
+    [14, 15],
+   
+    //boksto apacia
+
+    [8, 10],
+    [9, 11],
+    [12, 14],
+    [13, 15],
+
+    //boksto sienos
+
+    [8, 12],
+    [9, 13],
+    [10 ,14],
+    [11, 15],
+
+    //PUSHKA 
+
+    [16, 18],
+    [20, 22],
+    [16, 20],
+    [18, 22],
+
+    [21, 23],
+    [17, 19],
+    [19, 23],
+    [17, 21],
+
+    [21, 22], 
+    [16, 19],
+    [17, 18],
+    [20, 23]
+
+
+
+
 ]
 function translate_z({x, y, z}, dz) {
     return {x, y, z: z + dz}
@@ -83,9 +171,9 @@ function frame() {
     angle += Math.PI*dt;
     clear()
     
-    // for (const v of vs) {
-    //     point(screen(project(translate_z(rotate_xz(v, angle), dz))))
-    // }
+    //  for (const v of vs) {
+    //      point(screen(project(translate_z(rotate_xz(v, angle), dz))))
+    //  }
 
     for (const f of fs) {
         for (let i = 0; i < f.length; ++i) {
